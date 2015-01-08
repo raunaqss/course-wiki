@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 import webapp2
+from handlers import *
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
