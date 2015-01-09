@@ -100,7 +100,7 @@ class WikiParent(Handler):
 
 		It reads secure val of the cookie: 
 		if it exists: 
-		it sets the corresponding user to the variable self.logged_in_user.
+			it sets the corresponding user to the variable self.logged_in_user.
 		'''
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		uid = self.read_secure_cookie('user_id')
@@ -117,3 +117,67 @@ class WikiParent(Handler):
 		self.response.headers[
 			'Content-Type'] = 'application/json; charset=UTF-8'
 		self.write(dumped_json)
+
+
+class SignupHandler(WikiParent):
+
+	def write_signup_form(self, username = "",
+								username_error = "",
+								password_error = "",
+								verify_error = "",
+								email = "",
+								email_error = ""):
+
+		self.render('signup.html', title = "Wiki - Signup",
+								   username = username,
+								   username_error = username_error,
+								   password_error = password_error,
+								   verify_error = verify_error,
+								   email = email,
+								   email_error = email_error)
+
+	def get(self):
+		self.response.headers['Content-Type'] = 'text/html'
+		if self.logged_in_user:
+			self.redirect('/')
+		else:
+			self.write_signup_form()
+
+	def post(self):
+		self.response.headers['Content-Type'] = 'text/html'
+		username = self.request.get('username')
+		password = self.request.get('password')
+		verify = self.request.get('verify')
+		email = self.request.get('email')
+
+		all_errors  = {"username_error": "",
+					   "password_error": "",
+					   "verify_error": "",
+					   "email_error": ""}
+		valid_entries = True
+
+		if not valid_username(username):
+			all_errors["username_error"] = "That's not a valid username."
+			valid_entries = False
+
+		if not valid_password(password):
+			all_errors["password_error"] = "That wasn't a valid password."
+			valid_entries = False
+		elif password != verify:
+			all_errors["verify_error"] = "Your passwords didn't match."
+			valid_entries = False
+
+		if email and (not valid_email(email)):
+			all_errors["email_error"] = "That's not a valid email."
+			valid_entries = False
+
+		if not valid_entries:
+			self.response.headers
+			self.write_signup_form(username, 
+								   all_errors["username_error"],
+								   all_errors["password_error"],
+								   all_errors["verify_error"],
+								   email,
+								   all_errors["email_error"])
+		else:
+			self.redirect('/')

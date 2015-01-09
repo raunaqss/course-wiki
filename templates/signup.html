@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="login-area">
+	<div class="link-group">
+		<a class="login-link" href="/login">login</a>
+	</div>
+</div>
+<a href="/signup" class="page-title"><h2>Sign Up</h2></a>
+<form method="post">
+	<table>
+		<tr>
+			<td class="label">
+				Username
+			</td>
+			<td>
+				<input type="text" name="username" value="{{username}}">
+			</td>
+			<td class="error">
+				{{username_error}}
+			</td>
+		</tr>
+		<tr style="background: #FFF">
+			<td class="label">
+				Password
+			</td>
+			<td>
+				<input type="password" name="password" value="">
+			</td>
+			<td class="error">
+				{{password_error}}
+			</td>
+			<tr>
+			<td class="label">
+				Verify
+			</td>
+			<td>
+				<input type="password" name="verify" value="">
+			</td>
+			<td class="error">
+				{{verify_error}}
+			</td>
+			<tr style="background: #FFF">
+			<td class="label">
+				Email (optional)
+			</td>
+			<td>
+				<input type="text" name="email" value="{{email}}">
+			</td>
+			<td class="error">
+				{{email_error}}
+			</td>
+		</tr>
+		</tr>
+		</tr>
+	</table>
+	<input type="submit">
+</form>
+{% endblock %}

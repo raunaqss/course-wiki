@@ -9,4 +9,5 @@ class MainPage(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
+    (r'^/signup/?$', SignupHandler)
 ], debug=True)
