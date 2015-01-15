@@ -2,10 +2,13 @@
 import webapp2
 from handlers import *
 
-class MainPage(webapp2.RequestHandler):
+class MainPage(WikiParent):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+        if self.logged_in_user:
+        	self.response.write('Hello, ' + self.logged_in_user.username + '!')
+        else:
+        	self.response.write('Hello, World!')
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),

@@ -180,4 +180,19 @@ class SignupHandler(WikiParent):
 								   email,
 								   all_errors["email_error"])
 		else:
-			self.redirect('/')
+			existing_user = WikiUser.get_user(username)
+
+			if existing_user:
+				msg = 'This username is already taken!'
+				self.write_signup_form(username,
+									   msg,
+									   '',
+									   '',
+									   email,
+									   '')
+			else:
+				new_user = WikiUser.register(username, password, email)
+				new_user.put()
+				new_user.set_user_caches()
+				self.login(new_user)
+				self.redirect('/')
