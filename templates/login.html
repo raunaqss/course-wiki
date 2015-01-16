@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block content %}
+<div class="login-area">
+	<div class="link-group">
+		<a class="login-link" href="/signup">signup</a>
+	</div>
+</div>
+<a href="/login" class="page-title"><h2>Login</h2></a>
+<form method="post">
+	<table>
+		<tr>
+			<td class="label">
+				Username
+			</td>
+			<td>
+				<input type="text" name="username" value="{{username}}">
+			</td>
+		</tr>
+		<tr style="background: #FFF;">
+			<td class="label">
+				Password
+			</td>
+			<td>
+				<input type="password" name="password" value="">
+			</td>
+		</tr>
+	</table>
+	<div class="error">{{error}}</div>
+	<input type="submit">
+</form>
+{% endblock %}

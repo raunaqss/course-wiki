@@ -196,3 +196,25 @@ class SignupHandler(WikiParent):
 				new_user.set_user_caches()
 				self.login(new_user)
 				self.redirect('/')
+
+
+class LoginHandler(WikiParent):
+
+	def get(self):
+		if self.logged_in_user:
+			self.redirect('/')
+		else:
+			self.render('login.html', title='Wiki - Login')
+
+	def post(self):
+		username = self.request.get('username')
+		password = self.request.get('password')
+		user = WikiUser.valid_login(username, password)
+		if user:
+			self.login(user)
+			self.redirect('/')
+		else:
+			self.render('login.html', 
+						title="Login",
+						error="Invalid Login",
+						username = username)

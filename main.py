@@ -12,5 +12,6 @@ class MainPage(WikiParent):
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    (r'^/signup/?$', SignupHandler)
+    (r'^/signup/?$', SignupHandler),
+    (r'^/login/?$', LoginHandler)
 ], debug=True)
