@@ -218,3 +218,18 @@ class LoginHandler(WikiParent):
 						title="Login",
 						error="Invalid Login",
 						username = username)
+
+
+class EditHandler(WikiParent):
+
+	def get(self, page):
+		# this was giving you trouble when you had self.logged_in_user == None
+		if self.logged_in_user:
+			wiki_page = WikiPage.get_page(page)
+			version = self.read_secure_version(wiki_page)
+			self.render("edit.html", title = 'Edit - %s' % page[1:], 
+									 user = self.logged_in_user, 
+									 wiki_page = wiki_page, 
+									 version = version)
+		else:
+			self.redirect('/login') # redirect to login page if not logged in

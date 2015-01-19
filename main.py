@@ -10,8 +10,13 @@ class MainPage(WikiParent):
         else:
         	self.response.write('Hello, World!')
 
+
+PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+
+
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     (r'^/signup/?$', SignupHandler),
-    (r'^/login/?$', LoginHandler)
+    (r'^/login/?$', LoginHandler),
+    (r'/_edit' + PAGE_RE, EditHandler)
 ], debug=True)
