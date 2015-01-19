@@ -220,6 +220,13 @@ class LoginHandler(WikiParent):
 						username = username)
 
 
+class LogoutHandler(WikiParent):
+	
+	def get(self):
+		self.logout()
+		self.redirect('/') # redirect to the front page after logout
+
+
 class EditHandler(WikiParent):
 
 	def get(self, page):
