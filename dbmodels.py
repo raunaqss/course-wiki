@@ -117,7 +117,8 @@ class WikiUser(db.Model):
 
 def render_str(template, **params):
 	'''
-	This method is being written again, for the render_content() method (of WikiPage) to use.
+	This method is being written again, for the render_content() method (of
+	WikiPage) to use.
 	'''
 	t = jinja_env.get_template(template)
 	return t.render(params)
@@ -130,7 +131,7 @@ def page_key(name = 'default'):
 	'''
 	return db.Key.from_path('pages', name)
 
-	
+
 class WikiPage(db.Model):
 	"""
 	This is the 'WikiPage' entity on the Datastore.
@@ -139,9 +140,49 @@ class WikiPage(db.Model):
 	created = db.DateTimeProperty(auto_now_add = True)
 	date_modified = db.ListProperty(datetime.datetime)
 
+	def render_content(self, version):
+		"""
+		Renders a single post in the templates 'content.html'.
+		It converts each line break to the <br> tag to preserve line breaks.
+		When called from the HTMl files, this function is not escaped (it's
+		marked safe.)
+
+		version: integer
+		"""
+		# 'version-1' because lists are indexed from 0 and versions start at 1
+		self._render_text = self.content[version - 1].replace('\n', '<br>')
+		return render_str('content.html', wiki_page = self)
+
+	def make_dict(self, version):
+		"""
+		Makes the dict that is then used by render_json() to render to JSON for
+		each page when requested.
+		The dict uses the content for the version requested.
+
+		version: integer
+		Returns: dictionary
+		"""
+		# 'version-1' because lists are indexed from 0 and versions start at 1
+		d = {"content": self.content[version - 1],
+			 "created": self.created.strftime("%c"),
+			 "last_modified": self.date_modified[version - 1].strftime("%c"),
+			 "page_path": self.key().name()}
+		return d
+
+	def update(self, content):
+		"""
+		Updates the WikiPage object with the given content.
+		Returns it without putting it to the database.
+		"""
+		date_mod = datetime.datetime.now()
+		self.content.append(db.Text(content))
+		self.date_modified.append(date_mod)
+		return self
+
 	@classmethod
 	def get_page(cls, page):
-		"""Returns the WikiPage corresponding to the requested page, if it exists.
+		"""Returns the WikiPage corresponding to the requested page, if it
+		exists.
 
 		Attempts getting from memcache first.
 		If memcache get is not successful -> call the DB Query function.
@@ -155,7 +196,8 @@ class WikiPage(db.Model):
 
 	@classmethod
 	def by_page_key(cls, page):
-		"""Returns the WikiPage corresponding to the requested page, if it exists.
+		"""Returns the WikiPage corresponding to the requested page, if it
+		exists.
 
 		page: String
 		Returns: WikiPage entity

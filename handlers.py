@@ -221,7 +221,7 @@ class LoginHandler(WikiParent):
 
 
 class LogoutHandler(WikiParent):
-	
+
 	def get(self):
 		self.logout()
 		self.redirect('/') # redirect to the front page after logout
@@ -240,3 +240,26 @@ class EditHandler(WikiParent):
 									 version = version)
 		else:
 			self.redirect('/login') # redirect to login page if not logged in
+
+	def post(self, page):
+		if self.logged_in_user:
+			content = self.request.get('content')
+			if content:
+				wiki_page = WikiPage.get_page(page)
+				date_mod = datetime.datetime.now()
+				# if the page exists -> update it | if it doesn't -> create it
+				if wiki_page:
+					wiki_page = wiki_page.update(content)
+					wiki_page.put()
+				else: 
+					wiki_page = WikiPage.construct(content, page)
+					wiki_page.put()
+
+				set_cache(page, wiki_page)
+				#self.redirect(page)
+			else:
+				error = "Content Required !!"
+				self.render("edit.html", title = 'Edit - %s' % page[1:], 
+					error = error, user = self.logged_in_user)
+		else:
+			self.redirect('/login') # handling the edge case or cookie deletion
