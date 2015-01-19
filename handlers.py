@@ -227,6 +227,26 @@ class LogoutHandler(WikiParent):
 		self.redirect('/') # redirect to the front page after logout
 
 
+class PageHandler(WikiParent):
+
+	def get(self, page, req_json):
+		wiki_page = WikiPage.get_page(page) # db query
+		if not wiki_page:
+			self.redirect('/_edit%s' % page)
+		else:
+			# attempts to read version requested from the URL (default: latest)
+			version = self.read_secure_version(wiki_page)
+
+			if req_json: # if the url ends with .json
+				self.render_json(wiki_page.make_dict(version))
+			else:
+				self.render("page.html", 
+							title = page[1:], 
+							user = self.logged_in_user, 
+							wiki_page = wiki_page, 
+							version = version)
+
+
 class EditHandler(WikiParent):
 
 	def get(self, page):
@@ -256,7 +276,7 @@ class EditHandler(WikiParent):
 					wiki_page.put()
 
 				set_cache(page, wiki_page)
-				#self.redirect(page)
+				self.redirect(page)
 			else:
 				error = "Content Required !!"
 				self.render("edit.html", title = 'Edit - %s' % page[1:], 
