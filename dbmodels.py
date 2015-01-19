@@ -113,3 +113,62 @@ class WikiUser(db.Model):
 	def set_user_caches(self):
 		set_cache(self.username, self)
 		set_cache(str(self.key().id()), self)
+
+
+def render_str(template, **params):
+	'''
+	This method is being written again, for the render_content() method (of WikiPage) to use.
+	'''
+	t = jinja_env.get_template(template)
+	return t.render(params)
+
+
+def page_key(name = 'default'):
+	'''
+	This function returns the Key object for the ancestor of all WikiPages.
+	We structure our data this way to achieve Strong Consistency.
+	'''
+	return db.Key.from_path('pages', name)
+
+	
+class WikiPage(db.Model):
+	"""
+	This is the 'WikiPage' entity on the Datastore.
+	"""
+	content = db.ListProperty(db.Text, required = True)
+	created = db.DateTimeProperty(auto_now_add = True)
+	date_modified = db.ListProperty(datetime.datetime)
+
+	@classmethod
+	def get_page(cls, page):
+		"""Returns the WikiPage corresponding to the requested page, if it exists.
+
+		Attempts getting from memcache first.
+		If memcache get is not successful -> call the DB Query function.
+		"""
+		wiki_page = memcache.get(page)
+		if not wiki_page:
+			wiki_page = cls.by_page_key(page)
+			if wiki_page:
+				set_cache(page, wiki_page)
+		return wiki_page
+
+	@classmethod
+	def by_page_key(cls, page):
+		"""Returns the WikiPage corresponding to the requested page, if it exists.
+
+		page: String
+		Returns: WikiPage entity
+		"""
+		logging.error('DB Query')
+		wiki_page = cls.get_by_key_name(page, parent = page_key())
+		return wiki_page
+
+	@classmethod
+	def construct(cls, content, page):
+		"""Constructs the WikiPage entity and Returns it without putting it."""
+		date_mod = datetime.datetime.now()
+		return cls(parent = page_key(), 
+				   content = [db.Text(content)], 
+				   date_modified = [date_mod], 
+				   key_name = page)
