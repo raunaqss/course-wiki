@@ -159,3 +159,7 @@ tr:nth-child(even) {
     text-decoration: none;
     padding-right: 1em;
 }
+
+.view-link:hover {
+    text-decoration: underline;
+}
