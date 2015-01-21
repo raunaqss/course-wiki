@@ -283,3 +283,10 @@ class EditHandler(WikiParent):
 					error = error, user = self.logged_in_user)
 		else:
 			self.redirect('/login') # handling the edge case or cookie deletion
+
+
+class HistoryHandler(WikiParent):
+	def get(self, page):
+		wiki_page = WikiPage.get_page(page)
+		self.render("history.html", title = 'History - %s' % page[1:], 
+			user = self.logged_in_user, wiki_page = wiki_page)
