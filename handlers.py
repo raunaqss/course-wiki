@@ -286,6 +286,7 @@ class EditHandler(WikiParent):
 
 
 class HistoryHandler(WikiParent):
+	
 	def get(self, page):
 		wiki_page = WikiPage.get_page(page)
 		self.render("history.html", title = 'History - %s' % page[1:], 
