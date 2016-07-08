@@ -270,11 +270,10 @@ class EditHandler(WikiParent):
 				# if the page exists -> update it | if it doesn't -> create it
 				if wiki_page:
 					wiki_page = wiki_page.update(content)
-					wiki_page.put()
 				else: 
 					wiki_page = WikiPage.construct(content, page)
-					wiki_page.put()
-
+				
+				wiki_page.put()
 				set_cache(page, wiki_page)
 				self.redirect(page)
 			else:
