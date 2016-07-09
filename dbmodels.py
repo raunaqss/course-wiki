@@ -6,6 +6,7 @@ import datetime
 import jinja2
 
 from google.appengine.ext import db
+from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from utils import *
 
@@ -15,17 +16,17 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 
 
 def users_key(group = 'default'):
-    return db.Key.from_path('users', group)
+    return ndb.Key('users', group)
 
 
-class WikiUser(db.Model):
+class WikiUser(ndb.Model):
 	"""
 	Datastore entity for each WikiUser.
 	Email entry is not required.
 	"""
-	username = db.StringProperty(required = True)
-	pw_hash = db.StringProperty(required = True)
-	email = db.EmailProperty(required = False)
+	username = ndb.StringProperty(required = True)
+	pw_hash = ndb.StringProperty(required = True)
+	email = ndb.StringProperty(required = False)
 
 	@classmethod
 	def get_user(cls, uid_or_username):
@@ -68,8 +69,8 @@ class WikiUser(db.Model):
 		Returns: WikiUser entity
 		'''
 		logging.error('DB QUERY')
-		user = cls.all().ancestor(users_key()).filter("username = ",
-													  username).get()
+		user = cls.query(cls.username == username,
+						 ancestor = users_key()).get()
 		return user
 
 	@classmethod
@@ -112,7 +113,7 @@ class WikiUser(db.Model):
 
 	def set_user_caches(self):
 		set_cache(self.username, self)
-		set_cache(str(self.key().id()), self)
+		set_cache(str(self.key.id()), self)
 
 
 def render_str(template, **params):
@@ -129,16 +130,15 @@ def page_key(name = 'default'):
 	This function returns the Key object for the ancestor of all WikiPages.
 	We structure our data this way to achieve Strong Consistency.
 	'''
-	return db.Key.from_path('pages', name)
+	return ndb.Key('pages', name)
 
 
-class WikiPage(db.Model):
+class WikiPage(ndb.Model):
 	"""
 	This is the 'WikiPage' entity on the Datastore.
 	"""
-	content = db.ListProperty(db.Text, required = True)
-	created = db.DateTimeProperty(auto_now_add = True)
-	date_modified = db.ListProperty(datetime.datetime)
+	content = ndb.TextProperty(repeated = True)
+	date_modified = ndb.DateTimeProperty(repeated = True)
 
 	def render_content(self, version):
 		"""
@@ -166,7 +166,7 @@ class WikiPage(db.Model):
 		d = {"content": self.content[version - 1],
 			 "created": self.created.strftime("%c"),
 			 "last_modified": self.date_modified[version - 1].strftime("%c"),
-			 "page_path": self.key().name()}
+			 "page_path": self.key.string_id()}
 		return d
 
 	def update(self, content):
@@ -175,7 +175,7 @@ class WikiPage(db.Model):
 		Returns it without putting it to the database.
 		"""
 		date_mod = datetime.datetime.now()
-		self.content.append(db.Text(content))
+		self.content.append(content)
 		self.date_modified.append(date_mod)
 		return self
 
@@ -203,7 +203,7 @@ class WikiPage(db.Model):
 		Returns: WikiPage entity
 		"""
 		logging.error('DB Query')
-		wiki_page = cls.get_by_key_name(page, parent = page_key())
+		wiki_page = cls.get_by_id(page, parent = page_key())
 		return wiki_page
 
 	@classmethod
@@ -211,6 +211,6 @@ class WikiPage(db.Model):
 		"""Constructs the WikiPage entity and Returns it without putting it."""
 		date_mod = datetime.datetime.now()
 		return cls(parent = page_key(), 
-				   content = [db.Text(content)], 
+				   content = [content], 
 				   date_modified = [date_mod], 
-				   key_name = page)
+				   id = page)

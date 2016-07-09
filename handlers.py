@@ -85,7 +85,7 @@ class WikiParent(Handler):
 
 		user: WikiUser entity
 		'''
-		self.set_secure_cookie('user_id', str(user.key().id()))
+		self.set_secure_cookie('user_id', str(user.key.id()))
 
 	def logout(self):
 		'''Sets the cookie to blank'''

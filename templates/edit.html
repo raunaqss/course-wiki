@@ -7,9 +7,9 @@
 	</div>
 	{% if wiki_page %}
 		<div class="link-group">
-			<a class="login-link" href="{{wiki_page.key().name()}}?v={{version}}">view</a>
+			<a class="login-link" href="{{wiki_page.key.string_id()}}?v={{version}}">view</a>
 			|
-			<a class="login-link" href="/_history{{wiki_page.key().name()}}">history</a>
+			<a class="login-link" href="/_history{{wiki_page.key.string_id()}}">history</a>
 		</div>
 	{% endif %}
 	<h2 style="margin: 0px; padding 0px;">Edit</h2>
