@@ -150,7 +150,7 @@ class WikiPage(ndb.Model):
 		version: integer
 		"""
 		# 'version-1' because lists are indexed from 0 and versions start at 1
-		self._render_text = self.content[version - 1].replace('\n', '<br>')
+		self._render_text = markdown.markdown(cgi.escape(self.content[version - 1]))
 		return render_str('content.html', wiki_page = self)
 
 	def make_dict(self, version):
@@ -164,7 +164,7 @@ class WikiPage(ndb.Model):
 		"""
 		# 'version-1' because lists are indexed from 0 and versions start at 1
 		d = {"content": self.content[version - 1],
-			 "created": self.created.strftime("%c"),
+			 "created": self.date_modified[0].strftime("%c"),
 			 "last_modified": self.date_modified[version - 1].strftime("%c"),
 			 "page_path": self.key.string_id()}
 		return d

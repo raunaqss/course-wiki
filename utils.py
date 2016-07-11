@@ -4,6 +4,8 @@ import hashlib
 import hmac
 import re
 import logging
+import markdown
+import cgi
 
 from google.appengine.api import memcache
 
