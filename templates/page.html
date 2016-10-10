@@ -1,29 +1,22 @@
-{% extends "base.html" %}
-{% block content %}
-{% if user %}
-	<div class="login-area">
-		<div class="link-group">
-			<a class="login-link" href="/logout">{{user.username}}(logout)</a>
-		</div>
-		<div class="link-group">
-			<a class="login-link" href="/_edit{{wiki_page.key.string_id()}}?v={{version}}">edit</a>
-			|
-			<a class="login-link" href="/_history{{wiki_page.key.string_id()}}">history</a>
-		</div>
-	</div>
-{% else %}
-	<div class="login-area">
-		<div class="link-group">
-			<a class="login-link" href="/login">login</a>
-			|
-			<a class="login-link" href="/signup">signup</a>
-		</div>
-		<div class="link-group">
-			<a class="login-link" href="/_history{{wiki_page.key.string_id()}}">history</a>
+{% extends "header.html" %}
+{% block page %}
+<div class="container" id="page">
+	{% if msg %}
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="alert alert-info" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				{{ msg }}
+			</div>
 		</div>
 	</div>
-{% endif %}
-
-{{wiki_page.render_content(version) | safe}}
-
+	{% endif %}
+	<div class="row">
+		<div class="col-xs-12">
+			{{wiki_page.render_content(version) | safe}}
+		</div>
+	</div>
+</div>
 {% endblock %}

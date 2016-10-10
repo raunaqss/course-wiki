@@ -102,6 +102,7 @@ class WikiParent(Handler):
 		if it exists: 
 			it sets the corresponding user to the variable self.logged_in_user.
 		'''
+		logging.info(datetime.datetime.now())
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		uid = self.read_secure_cookie('user_id')
 		#logging.info('uid is %s' % uid)
@@ -216,7 +217,7 @@ class LoginHandler(WikiParent):
 		else:
 			self.render('login.html', 
 						title="Login",
-						error="Invalid Login",
+						error="Username or Password is incorrect.",
 						username = username)
 
 
@@ -257,29 +258,37 @@ class EditHandler(WikiParent):
 			self.render("edit.html", title = 'Edit - %s' % page[1:], 
 									 user = self.logged_in_user, 
 									 wiki_page = wiki_page, 
-									 version = version)
+									 version = version,
+									 error = self.request.get('error'))
 		else:
 			self.redirect('/login') # redirect to login page if not logged in
 
 	def post(self, page):
 		if self.logged_in_user:
 			content = self.request.get('content')
-			if content:
-				wiki_page = WikiPage.get_page(page)
-				date_mod = datetime.datetime.now()
+			wiki_page = WikiPage.get_page(page)
+			if wiki_page:
+				valid = content and (content != wiki_page.content[-1])
+			else:
+				valid = content
+			if valid:
 				# if the page exists -> update it | if it doesn't -> create it
 				if wiki_page:
 					wiki_page = wiki_page.update(content)
 				else: 
 					wiki_page = WikiPage.construct(content, page)
-				
 				wiki_page.put()
 				set_cache(page, wiki_page)
 				self.redirect(page)
 			else:
-				error = "Content Required !!"
-				self.render("edit.html", title = 'Edit - %s' % page[1:], 
-					error = error, user = self.logged_in_user)
+				if valid == '':
+					error = 'Content Required !!'
+				elif valid == False:
+					error = 'Page not modified !!'
+				self.redirect('/_edit' + page + '?error=%s' % error)
+				# error = "Content Required !!"
+				# self.render("edit.html", title = 'Edit - %s' % page[1:], 
+				# 	error = error, user = self.logged_in_user)
 		else:
 			self.redirect('/login') # handling the edge case or cookie deletion
 

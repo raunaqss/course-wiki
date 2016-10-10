@@ -150,8 +150,9 @@ class WikiPage(ndb.Model):
 		version: integer
 		"""
 		# 'version-1' because lists are indexed from 0 and versions start at 1
-		self._render_text = markdown.markdown(cgi.escape(self.content[version - 1]))
-		return render_str('content.html', wiki_page = self)
+		# self._render_text = markdown.markdown(cgi.escape(self.content[version - 1]))
+		# return render_str('content.html', wiki_page = self)
+		return markdown.markdown(cgi.escape(self.content[version - 1]))
 
 	def make_dict(self, version):
 		"""
@@ -174,9 +175,10 @@ class WikiPage(ndb.Model):
 		Updates the WikiPage object with the given content.
 		Returns it without putting it to the database.
 		"""
-		date_mod = datetime.datetime.now()
-		self.content.append(content)
-		self.date_modified.append(date_mod)
+		if content != self.content[-1]:
+			date_mod = datetime.datetime.now()
+			self.content.append(content)
+			self.date_modified.append(date_mod)
 		return self
 
 	@classmethod

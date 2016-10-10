@@ -1,32 +1,48 @@
-<!DOCTYPE html>
-{% extends "base.html" %}
-{% block content %}
-<div class="login-area">
-	<div class="link-group">
-		<a class="login-link" href="/signup">signup</a>
+{% extends "header.html" %}
+{% block page %}
+<script type="text/javascript">
+	$('#login-tab').addClass('active')
+</script>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<h3>Login</h3>
+			<p class="lead m-b-0">If login invalid, signup again – no forgetting passwords :P</p>
+			<hr class="m-t-0" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<form method="post">
+				<div class="form-group row">
+					<label for="username" class="col-sm-2 col-form-label">
+						Username
+					</label>
+					<div class="col-sm-10">
+						<input type="text" name="username" id="username" class="form-control" value="{{ username }}" />
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="password" class="col-sm-2 col-form-label">
+						Password
+					</label>
+					<div class="col-sm-10">
+						<input type="password" name="password" id="password" class="form-control" value="" />
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-xs-12">
+						<button type="submit" class="btn btn-primary pull-xs-right">get in</button>
+					</div>	
+				</div>
+				{% if error %}
+				<div class="alert alert-danger" role="alert">
+					<strong>Haha!</strong> {{error}}
+				</div>
+				{% endif %}
+			</form>
+		</div>
+		<div class="col-sm-6"></div>
 	</div>
 </div>
-<a href="/login" class="page-title"><h2>Login</h2></a>
-<form method="post">
-	<table>
-		<tr>
-			<td class="label">
-				Username
-			</td>
-			<td>
-				<input type="text" name="username" value="{{username}}">
-			</td>
-		</tr>
-		<tr style="background: #FFF;">
-			<td class="label">
-				Password
-			</td>
-			<td>
-				<input type="password" name="password" value="">
-			</td>
-		</tr>
-	</table>
-	<div class="error">{{error}}</div>
-	<input type="submit">
-</form>
 {% endblock %}

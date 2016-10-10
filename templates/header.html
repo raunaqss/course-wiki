@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="navbar navbar-full navbar-light bg-faded m-b-2">
+	<div class="container">
+  <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2" aria-controls="exCollapsingNavbar2" aria-expanded="false" aria-label="Toggle navigation">
+    &#9776;
+  </button>
+  <a class="navbar-brand" href="/">Multi User Blog</a>
+  <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
+    <ul class="nav navbar-nav pull-xs-right">
+    	{% if user %}
+      {% if wiki_page %}
+    	<li class="nav-item">
+    		<a class="nav-link" href="/_edit{{wiki_page.key.string_id()}}?v={{version}}">edit</a>
+    	</li>
+    	<li class="nav-item">
+    		<a class="nav-link" href="/_history{{wiki_page.key.string_id()}}">history</a>
+    	</li>
+      {% endif %}
+    	<li class="nav-item active">
+    		<a class="nav-link" href="/logout">{{user.username}}(logout)</a>
+    	</li>
+    	{% else %}
+      <li id="login-tab" class="nav-item">
+        <a class="nav-link" href="/login">login</a>
+      </li>
+      <li id="signup-tab" class="nav-item">
+        <a class="nav-link" href="/signup">signup</a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+  </div>
+</nav>
+{% block page %}
+{% endblock %}
+{% endblock %}
