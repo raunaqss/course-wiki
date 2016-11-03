@@ -102,10 +102,8 @@ class WikiParent(Handler):
 		if it exists: 
 			it sets the corresponding user to the variable self.logged_in_user.
 		'''
-		logging.info(datetime.datetime.now())
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		uid = self.read_secure_cookie('user_id')
-		#logging.info('uid is %s' % uid)
 		self.logged_in_user = uid and WikiUser.get_user(uid)
 
 	def render_json(self, d):
@@ -259,7 +257,8 @@ class EditHandler(WikiParent):
 									 user = self.logged_in_user, 
 									 wiki_page = wiki_page, 
 									 version = version,
-									 error = self.request.get('error'))
+									 error = self.request.get('error'),
+									 msg = self.request.get('msg'))
 		else:
 			self.redirect('/login') # redirect to login page if not logged in
 
@@ -274,9 +273,9 @@ class EditHandler(WikiParent):
 			if valid:
 				# if the page exists -> update it | if it doesn't -> create it
 				if wiki_page:
-					wiki_page = wiki_page.update(content)
+					wiki_page = wiki_page.update(content, self.logged_in_user)
 				else: 
-					wiki_page = WikiPage.construct(content, page)
+					wiki_page = WikiPage.construct(content, page, self.logged_in_user)
 				wiki_page.put()
 				set_cache(page, wiki_page)
 				self.redirect(page)
@@ -286,9 +285,6 @@ class EditHandler(WikiParent):
 				elif valid == False:
 					error = 'Page not modified !!'
 				self.redirect('/_edit' + page + '?error=%s' % error)
-				# error = "Content Required !!"
-				# self.render("edit.html", title = 'Edit - %s' % page[1:], 
-				# 	error = error, user = self.logged_in_user)
 		else:
 			self.redirect('/login') # handling the edge case or cookie deletion
 
@@ -299,3 +295,35 @@ class HistoryHandler(WikiParent):
 		wiki_page = WikiPage.get_page(page)
 		self.render("history.html", title = 'History - %s' % page[1:], 
 			user = self.logged_in_user, wiki_page = wiki_page)
+
+
+class DeleteHandler(WikiParent):
+
+	def post(self):
+		if self.logged_in_user:
+			page = self.request.get('del')
+			wiki_page = WikiPage.get_page(page)
+			if self.logged_in_user.username == wiki_page.editors[0]:
+				wiki_page.key.delete()
+				memcache.delete(page)
+				msg = ('Page successfully deleted. You can now build content from scratch if you want.')
+				self.redirect('/_edit' + page + '?msg=%s' % msg)
+
+
+class LikeHandler(WikiParent):
+
+	def post(self):
+		if self.logged_in_user:
+			d = json.loads(self.request.body)
+			wiki_page = WikiPage.get_page(d['page'])
+			if wiki_page.editors[0] == self.logged_in_user.username:
+				r = "creator"
+			elif self.logged_in_user.username in wiki_page.likes:
+				r = "liked"
+			else:
+				r = "like"
+				wiki_page.likes.append(self.logged_in_user.username)
+				wiki_page.put()
+				set_cache(wiki_page.key.string_id(), wiki_page)
+			self.response.headers['Content-Type'] = 'application/json'
+			self.write(json.dumps(r))

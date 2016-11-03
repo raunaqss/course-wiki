@@ -21,3 +21,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.m-5px {
+	margin: 5px;
+}

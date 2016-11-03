@@ -1,14 +1,61 @@
 {% extends "header.html" %}
 {% block page %}
 <div class="container">
+	{% if wiki_page %}
+	<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	    	<div class="modal-header">
+        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	    		<h4 class="modal-title">Delete</h4>
+	    	</div>
+	    	<div class="modal-body">
+	    		<form method="post" action="/_delete">
+		     		<lable>This page cannot be recovered after proceeding.</label>
+		     		<div class="form-group row">
+		     			<div class="col-sm-5 offset-sm-7">
+		     				<button class="btn btn-danger" type="submit" name="del" value="{{ wiki_page.key.string_id() }}">Delete</button>
+		     			</div>
+		     		</div>
+		     	</form>
+	    	</div>
+	    </div>
+	  </div>
+	</div>
+	{% endif %}
 	<div class="row">
 		<div class="col-xs-12">
+			{% if msg %}
+			<div class="alert alert-info" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				{{ msg }}
+			</div>
+			{% endif %}
 			<form method="post">
 				<div class="form-group row">
 					<textarea id="page-text" name="content" class="form-control" rows="20">{% if wiki_page %}{{wiki_page.content[version - 1]}}{% endif %}</textarea>
 				</div>
 				<div class="form-group row">
-					<div class="col-xs-8 p-l-0">
+					<div class="col-xs-6 p-l-0">
+						<div class="col-xs-8 p-l-0 p-r-0">
+							<div class="col-xs-6 p-l-0">
+								<button type="submit" class="btn btn-lg btn-outline-success btn-block" name="save">Save</button>
+							</div>
+							<div class="col-xs-6 p-l-0.5 p-r-0.5">
+								<a class="btn btn-lg btn-outline-secondary btn-block" href="{{wiki_page.key.string_id() if wiki_page else 'javascript:history.back()'}}" >Cancel</a>
+							</div>
+						</div>
+						<div class="col-xs-4">
+							{% if wiki_page %}
+							{% if wiki_page.editors[0] == user.username %}
+							<button type="button" class="btn btn-lg btn-outline-danger btn-block" data-toggle="modal" data-target=".bd-example-modal-sm">Delete</button>
+							{% endif %}
+							{% endif %}
+						</div>
+					</div>
+					<div class="col-xs-6 p-r-0">
 						{% if error %}
 						<div class="alert alert-danger" role="alert">
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -18,16 +65,12 @@
 						</div>
 						{% endif %}
 					</div>
-					<div class="col-xs-4 p-r-0">
-						<div class="col-xs-6 p-l-0">
-						<button class="btn-lg btn-outline-secondary btn-block pull-xs-right"><a id="cancel-link" href="{{wiki_page.key.string_id()}}">Cancel</a></button>
-						</div>
-						<div class="col-xs-6 p-r-0">
-						<button type="submit" class="btn-lg btn-primary btn-block pull-xs-right" name="save">Save</button>
-						</div>
-					</div>
 				</div>
 			</form>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12">
 		</div>
 	</div>
 </div>

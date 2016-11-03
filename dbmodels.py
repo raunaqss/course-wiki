@@ -138,6 +138,8 @@ class WikiPage(ndb.Model):
 	This is the 'WikiPage' entity on the Datastore.
 	"""
 	content = ndb.TextProperty(repeated = True)
+	likes = ndb.StringProperty(repeated = True)
+	editors = ndb.StringProperty(repeated = True) # index 0 is the creator
 	date_modified = ndb.DateTimeProperty(repeated = True)
 
 	def render_content(self, version):
@@ -170,7 +172,7 @@ class WikiPage(ndb.Model):
 			 "page_path": self.key.string_id()}
 		return d
 
-	def update(self, content):
+	def update(self, content, user):
 		"""
 		Updates the WikiPage object with the given content.
 		Returns it without putting it to the database.
@@ -179,6 +181,7 @@ class WikiPage(ndb.Model):
 			date_mod = datetime.datetime.now()
 			self.content.append(content)
 			self.date_modified.append(date_mod)
+			self.editors.append(user.username)
 		return self
 
 	@classmethod
@@ -209,10 +212,11 @@ class WikiPage(ndb.Model):
 		return wiki_page
 
 	@classmethod
-	def construct(cls, content, page):
+	def construct(cls, content, page, user):
 		"""Constructs the WikiPage entity and Returns it without putting it."""
 		date_mod = datetime.datetime.now()
 		return cls(parent = page_key(), 
 				   content = [content], 
-				   date_modified = [date_mod], 
+				   date_modified = [date_mod],
+				   editors = [user.username],
 				   id = page)

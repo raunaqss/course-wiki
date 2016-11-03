@@ -2,14 +2,20 @@
 {% block content %}
 <nav class="navbar navbar-full navbar-light bg-faded m-b-2">
 	<div class="container">
-  <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2" aria-controls="exCollapsingNavbar2" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler hidden-sm-up pull-xs-right" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2" aria-controls="exCollapsingNavbar2" aria-expanded="false" aria-label="Toggle navigation">
     &#9776;
   </button>
   <a class="navbar-brand" href="/">Multi User Blog</a>
   <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
-    <ul class="nav navbar-nav pull-xs-right">
+    <ul class="nav navbar-nav pull-md-right pull-sm-left">
     	{% if user %}
       {% if wiki_page %}
+      <li class="nav-item">
+        <button id="like-page" type="button" class="btn btn-outline-info btn-sm m-5px" value="{{ wiki_page.key.string_id() }}">
+          Like <span id="likes" class="tag tag-pill tag-info">{{ wiki_page.likes|length }}</span>
+        </button>
+        <script type="text/javascript" src="/assets/js/like.js"></script>
+      </li>
     	<li class="nav-item">
     		<a class="nav-link" href="/_edit{{wiki_page.key.string_id()}}?v={{version}}">edit</a>
     	</li>
