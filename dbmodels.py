@@ -220,3 +220,27 @@ class WikiPage(ndb.Model):
 				   date_modified = [date_mod],
 				   editors = [user.username],
 				   id = page)
+
+
+class Comment(ndb.Model):
+	'''This class models the Comment entity in the datastore.'''
+	content = ndb.TextProperty()
+	user = ndb.StringProperty() # assign owner's username
+	last_modified = ndb.DateTimeProperty()
+	date_created = ndb.DateTimeProperty()
+
+	def edit(self, content):
+		self.content = content
+		self.last_modified = datetime.datetime.now()
+		return self
+
+	@classmethod
+	def construct(cls, content, user, wiki_page):
+		d = datetime.datetime.now()
+		return cls(parent = wiki_page,
+				   content = content,
+				   user = user.username,
+				   last_modified = d,
+				   date_created = d)
+
+	
