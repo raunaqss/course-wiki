@@ -7,7 +7,7 @@ $('#like-page').click(function() {
 	}).done(function (data) {
 		console.log(data);
 		if (data == 'like') {
-			$('#likes').text($('#likes').val() + 1);
+			$('#likes').text(parseInt($('#likes').text()) + 1);
 		} else if (data == 'creator') {
 			$('#like-page').popover({
 				placement: 'bottom',

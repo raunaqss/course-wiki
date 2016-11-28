@@ -308,6 +308,8 @@ class DeleteHandler(WikiParent):
 				memcache.delete(page)
 				msg = ('Page successfully deleted. You can now build content from scratch if you want.')
 				self.redirect('/_edit' + page + '?msg=%s' % msg)
+		else:
+			self.redirect('/login')
 
 
 class LikeHandler(WikiParent):
@@ -327,3 +329,5 @@ class LikeHandler(WikiParent):
 				set_cache(wiki_page.key.string_id(), wiki_page)
 			self.response.headers['Content-Type'] = 'application/json'
 			self.write(json.dumps(r))
+		else:
+			self.redirect('/login')
